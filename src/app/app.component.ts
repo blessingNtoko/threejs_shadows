@@ -144,7 +144,8 @@ export class AppComponent implements OnInit {
         // compute a position for the base. Thius will move both the sphere and the shadow
         const speed = time * .2;
         const angle = speed + u * Math.PI * 2 * (ndx % 1 ? 1 : -1);
-        const radius = Math.sin()
+        const radius = Math.sin(speed - ndx) * 10;
+        base.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
       })
 
       this.controls.update();
