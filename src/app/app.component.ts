@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { request } from 'https';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -25,7 +26,17 @@ export class AppComponent implements OnInit{
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
 
+    this.scene.background = new THREE.Color('white');
+
     this.controls.update();
     this.camera.position.set(0, 10, 0);
+
+
+    const animate = () => {
+
+      this.renderer.render(this.scene, this.camera);
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
   }
 }
