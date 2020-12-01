@@ -104,9 +104,9 @@ export class AppComponent implements OnInit {
         y: sphereMesh.position.y
       });
 
-      console.log('Sphere Shadow Bases ->', sphereShadowBases);
 
     }
+    console.log('Sphere Shadow Bases ->', sphereShadowBases);
 
     // =============================================================== Lights ===========================================================
 
