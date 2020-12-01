@@ -141,12 +141,19 @@ export class AppComponent implements OnInit {
         // u is a value that goes from 0 to 1 as we iterate the spheres
         const u = ndx / sphereShadowBases.length;
 
-        // compute a position for the base. Thius will move both the sphere and the shadow
+        // compute a position for the base. This will move both the sphere and the shadow
         const speed = time * .2;
         const angle = speed + u * Math.PI * 2 * (ndx % 1 ? 1 : -1);
         const radius = Math.sin(speed - ndx) * 10;
         base.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-      })
+
+        // yOff is a value that goes from 0 to 1
+        const yOff = Math.abs(Math.sin(time * 2 + ndx));
+        // move sphere up and down
+        sphereMesh.position.y = y + THREE.MathUtils.lerp(-2, 2, yOff);
+        // fade shadow as the sphere goes up
+        shadowMesh.material.opacity = THREE.MathUtils.lerp(1, .25, yOff);
+      });
 
       this.controls.update();
 
