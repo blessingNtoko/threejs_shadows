@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
 
   private init() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.shadowMap.enabled = true;
     document.body.appendChild(this.renderer.domElement);
 
     this.scene.background = new THREE.Color('black');
