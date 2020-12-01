@@ -132,7 +132,20 @@ export class AppComponent implements OnInit {
 
     // =============================================================== Animate ===========================================================
 
-    const animate = () => {
+    const animate = (time) => {
+      time *= .001; // convert to seconds
+
+      sphereShadowBases.forEach((sphereShadBase, ndx) => {
+        const {base, sphereMesh, shadowMesh, y} = sphereShadBase;
+
+        // u is a value that goes from 0 to 1 as we iterate the spheres
+        const u = ndx / sphereShadowBases.length;
+
+        // compute a position for the base. Thius will move both the sphere and the shadow
+        const speed = time * .2;
+        const angle = speed + u * Math.PI * 2 * (ndx % 1 ? 1 : -1);
+        const radius = Math.sin()
+      })
 
       this.controls.update();
 
