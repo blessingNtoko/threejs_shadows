@@ -58,7 +58,7 @@ export class DimensionGUIHelper {
 
   set value(v) {
     this.obj[this.maxProp] = v / 2;
-    this.obj[this.minProp] = v / 2;
+    this.obj[this.minProp] = v / -2;
   }
 }
 

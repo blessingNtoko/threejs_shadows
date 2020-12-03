@@ -4,6 +4,8 @@ import * as dat from 'dat.gui';
 import { BoxBufferGeometry, DirectionalLight, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ColorGUIHelper } from './Helpers/helpers.js';
+import { DimensionGUIHelper } from './Helpers/helpers.js';
+import { MinMaxGUIHelper } from './Helpers/helpers.js';
 
 
 @Component({
@@ -99,14 +101,21 @@ export class AppComponent implements OnInit {
     const directHelper = new THREE.DirectionalLightHelper(light);
     this.scene.add(directHelper)
 
-    const onChange = () => {
-      light.target.updateMatrixWorld();
-      directHelper.update();
-    }
-    onChange();
-
     const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
     this.scene.add(cameraHelper);
+
+    const updateMatrixAndHelpers = () => {
+      // update the light targets's matrixWorld because it is needed by the helper
+      light.target.updateMatrixWorld();
+      directHelper.update();
+
+      // update the light's shadow camera's projection matrix
+      light.shadow.camera.updateProjectionMatrix();
+
+      // update the camera helper we're using to show the light's shadow camera
+      cameraHelper.update();
+    }
+    updateMatrixAndHelpers();
 
 
     // =============================================================== Animate ===========================================================
@@ -114,9 +123,19 @@ export class AppComponent implements OnInit {
     const gui = new dat.GUI();
     gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
     gui.add(light, 'intensity', 0, 2, .01);
+    {
+      const folder = gui.addFolder('Shadow Camera');
+      folder.open();
+      folder.add(new DimensionGUIHelper(light.shadow.camera, 'left', 'right'), 'value', 1, 100).name('width').onChange(updateMatrixAndHelpers);
+      folder.add(new DimensionGUIHelper(light.shadow.camera, 'bottom', 'top'), 'value', 1, 100).name('height').onChange(updateMatrixAndHelpers);
+      const minMaxHelper = new MinMaxGUIHelper(light.shadow.camera, 'near', 'far', .1);
+      folder.add(minMaxHelper, 'min', .1, 50, .1).name('near').onChange(updateMatrixAndHelpers);
+      folder.add(minMaxHelper, 'max', .1, 50, .1).name('far').onChange(updateMatrixAndHelpers);
+      folder.add(light.shadow.camera, 'zoom', .01, 1.5, .01).onChange(updateMatrixAndHelpers);
+    }
 
-    this.makeXYZGUI(gui, light.position, 'position', onChange);
-    this.makeXYZGUI(gui, light.target.position, 'target', onChange);
+    this.makeXYZGUI(gui, light.position, 'position', updateMatrixAndHelpers);
+    this.makeXYZGUI(gui, light.target.position, 'target', updateMatrixAndHelpers);
 
     // =============================================================== Resize ===========================================================
 
