@@ -4,7 +4,7 @@ import * as dat from 'dat.gui';
 import { BoxBufferGeometry, DirectionalLight, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ColorGUIHelper } from './Helpers/helpers.js';
-import { DimensionGUIHelper } from './Helpers/helpers.js';
+import { DegRadHelper } from './Helpers/helpers.js';
 import { MinMaxGUIHelper } from './Helpers/helpers.js';
 
 
@@ -135,15 +135,15 @@ export class AppComponent implements OnInit {
     const gui = new dat.GUI();
     gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
     gui.add(light, 'intensity', 0, 2, .01);
+    gui.add(light, 'distance', 0, 40).onChange(updateMatrixAndHelpers);
+    gui.add(new DegRadHelper(light, 'angle'), 'value', 0, 90).name('angle').onChange(updateMatrixAndHelpers);
+    gui.add(light, 'penumbra', 0, 1, .01);
     {
       const folder = gui.addFolder('Shadow Camera');
       folder.open();
-      folder.add(new DimensionGUIHelper(light.shadow.camera, 'left', 'right'), 'value', 1, 100).name('width').onChange(updateMatrixAndHelpers);
-      folder.add(new DimensionGUIHelper(light.shadow.camera, 'bottom', 'top'), 'value', 1, 100).name('height').onChange(updateMatrixAndHelpers);
       const minMaxHelper = new MinMaxGUIHelper(light.shadow.camera, 'near', 'far', .1);
       folder.add(minMaxHelper, 'min', .1, 50, .1).name('near').onChange(updateMatrixAndHelpers);
       folder.add(minMaxHelper, 'max', .1, 50, .1).name('far').onChange(updateMatrixAndHelpers);
-      folder.add(light.shadow.camera, 'zoom', .01, 1.5, .01).onChange(updateMatrixAndHelpers);
     }
 
     this.makeXYZGUI(gui, light.position, 'position', updateMatrixAndHelpers);
