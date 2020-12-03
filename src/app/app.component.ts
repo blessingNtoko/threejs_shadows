@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
-import { BoxBufferGeometry, DirectionalLight } from 'three';
+import { BoxBufferGeometry, DirectionalLight, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { ColorGUIHelper } from './Helpers/helpers.js';
+
 
 @Component({
   selector: 'app-root',
@@ -95,9 +97,28 @@ export class AppComponent implements OnInit {
       const directHelper = new THREE.DirectionalLightHelper(light);
       this.scene.add(directHelper)
 
+      const onChange = () => {
+        light.target.updateMatrixWorld();
+        directHelper.update();
+      }
+      onChange();
+
     // =============================================================== Animate ===========================================================
 
     const gui = new dat.GUI();
+    gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+    gui.add(light, 'intensity', 0, 2, .01);
+
+    this.makeXYZGUI(gui, light.position, 'position', onChange);
+    this.makeXYZGUI(gui, light.target.position, 'target', onChange);
+
+    // =============================================================== Resize ===========================================================
+
+    window.addEventListener('resize', () => {
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+    }, false);
 
     // =============================================================== Animate ===========================================================
 
@@ -111,7 +132,7 @@ export class AppComponent implements OnInit {
     requestAnimationFrame(animate);
   }
 
-  public makeXYZGUI(gui, vector3, name, onChangeFn) {
+  public makeXYZGUI(gui, vector3: Vector3, name: string, onChangeFn) {
     const folder = gui.addFolder(name);
     folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
     folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
