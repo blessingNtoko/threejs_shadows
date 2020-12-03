@@ -89,17 +89,28 @@ export class AppComponent implements OnInit {
 
     // =============================================================== Lights ===========================================================
 
-    const color = 'white';
+    const color = 0xFFFFFF
     const intensity = 1;
-    const light = new DirectionalLight(color, intensity);
+    const light = new THREE.SpotLight(color, intensity);
     light.castShadow = true;
-    light.position.set(0, 10, 0);
-    light.target.position.set(-4, 0, -4);
+    light.position.set(0, 20, 0);
+    light.target.position.set(-5, 0, 0);
+    const spotHelper = new THREE.SpotLightHelper(light);
     this.scene.add(light);
     this.scene.add(light.target);
+    this.scene.add(spotHelper);
 
-    const directHelper = new THREE.DirectionalLightHelper(light);
-    this.scene.add(directHelper)
+    // const color = 'white';
+    // const intensity = 1;
+    // const light = new DirectionalLight(color, intensity);
+    // light.castShadow = true;
+    // light.position.set(0, 10, 0);
+    // light.target.position.set(-4, 0, -4);
+    // this.scene.add(light);
+    // this.scene.add(light.target);
+    // const directHelper = new THREE.DirectionalLightHelper(light);
+    // this.scene.add(directHelper)
+
 
     const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
     this.scene.add(cameraHelper);
@@ -107,7 +118,7 @@ export class AppComponent implements OnInit {
     const updateMatrixAndHelpers = () => {
       // update the light targets's matrixWorld because it is needed by the helper
       light.target.updateMatrixWorld();
-      directHelper.update();
+      spotHelper.update();
 
       // update the light's shadow camera's projection matrix
       light.shadow.camera.updateProjectionMatrix();
@@ -116,6 +127,7 @@ export class AppComponent implements OnInit {
       cameraHelper.update();
     }
     updateMatrixAndHelpers();
+    setTimeout(updateMatrixAndHelpers);
 
 
     // =============================================================== Animate ===========================================================
