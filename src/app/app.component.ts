@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
+import * as dat from 'dat.gui';
 import { BoxBufferGeometry, DirectionalLight } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
 
 @Component({
   selector: 'app-root',
@@ -84,41 +84,24 @@ export class AppComponent implements OnInit {
 
     // =============================================================== Lights ===========================================================
 
-    {
-      // DirectionalLight
       const color = 'white';
       const intensity = 1;
       const light = new DirectionalLight(color, intensity);
-      light.position.set(0, 10, 5);
-      light.target.position.set(-5, 0, 0);
+      light.position.set(0, 10, 0);
+      light.target.position.set(-4, 0, -4);
       this.scene.add(light);
       this.scene.add(light.target);
-    }
+
+      const directHelper = new THREE.DirectionalLightHelper(light);
+      this.scene.add(directHelper)
+
+    // =============================================================== Animate ===========================================================
+
+    const gui = new dat.GUI();
 
     // =============================================================== Animate ===========================================================
 
     const animate = (time) => {
-      time *= .001; // convert to seconds
-
-      sphereShadowBases.forEach((sphereShadBase, ndx) => {
-        const {base, sphereMesh, shadowMesh, y} = sphereShadBase;
-
-        // u is a value that goes from 0 to 1 as we iterate the spheres
-        const u = ndx / sphereShadowBases.length;
-
-        // compute a position for the base. This will move both the sphere and the shadow
-        const speed = time * .2;
-        const angle = speed + u * Math.PI * 2 * (ndx % 1 ? 1 : -1);
-        const radius = Math.sin(speed - ndx) * 10;
-        base.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-
-        // yOff is a value that goes from 0 to 1
-        const yOff = Math.abs(Math.sin(time * 2 + ndx));
-        // move sphere up and down
-        sphereMesh.position.y = y + THREE.MathUtils.lerp(-2, 2, yOff);
-        // fade shadow as the sphere goes up
-        shadowMesh.material.opacity = THREE.MathUtils.lerp(1, .25, yOff);
-      });
 
       this.controls.update();
 
@@ -126,5 +109,13 @@ export class AppComponent implements OnInit {
       requestAnimationFrame(animate);
     }
     requestAnimationFrame(animate);
+  }
+
+  public makeXYZGUI(gui, vector3, name, onChangeFn) {
+    const folder = gui.addFolder(name);
+    folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+    folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
+    folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+    folder.open();
   }
 }
