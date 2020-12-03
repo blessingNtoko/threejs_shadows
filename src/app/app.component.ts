@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
-import { DirectionalLight } from 'three';
+import { BoxBufferGeometry, DirectionalLight } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 
@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   public renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-  public camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 1000);
+  public camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 100);
   public controls = new OrbitControls(this.camera, this.renderer.domElement);
   public loader = new THREE.TextureLoader();
 
@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
     this.controls.update();
     this.camera.position.set(20, 5, 0);
 
-    // =============================================================== Plane ===========================================================
+    // =============================================================== Plane Cube & Sphere===========================================================
 
     const planeSize = 40;
     const texture = this.loader.load('../assets/textures/checker.png');
@@ -50,75 +50,39 @@ export class AppComponent implements OnInit {
     });
     planeMat.color.setRGB(1.5, 1.5, 1.5);
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+    planeMesh.receiveShadow = true;
     planeMesh.rotation.x = Math.PI * -.5;
     this.scene.add(planeMesh);
 
-    // =============================================================== Shadow Texture On Spheres ===========================================================
-
-    const shadowTexture = this.loader.load('../assets/textures/roundshadow.png');
-
-    const sphereShadowBases = [];
-
-    const sphereRadius = 1;
-    const sphereWidthDiv = 32;
-    const sphereHeightDiv = 16;
-    const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDiv, sphereHeightDiv);
-
-    const fakeShadowPlaneSize = 1;
-    const shadowGeo = new THREE.PlaneBufferGeometry(fakeShadowPlaneSize, fakeShadowPlaneSize);
-
-    const numSpheres = 15;
-    for (let i = 0; i < numSpheres; i++) {
-      // make a base for the shadow and the sphere so that they move together
-      const base = new THREE.Object3D();
-      this.scene.add(base);
-
-      // add shadow to the base
-      // note: we make a new material for each sphere
-      // so we can set that sphere's material transparency seperately.
-      const shadowMat = new THREE.MeshBasicMaterial({
-        map: shadowTexture,
-        transparent: true, // so that we can see the ground
-        depthWrite: false // so that we don't have to sort
+    {
+      const size = 4;
+      const cubeGeo = new BoxBufferGeometry(size, size, size);
+      const cubeMat = new THREE.MeshPhongMaterial({
+        color: '#8ac'
       });
-
-      const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-      shadowMesh.position.y = .001 // so that we are above ground slightly
-      shadowMesh.rotation.x = Math.PI * -.5;
-      const shadowSize = sphereRadius * 4;
-      shadowMesh.scale.set(shadowSize, shadowSize, shadowSize);
-      base.add(shadowMesh);
-
-      // add the sphere to the base
-      const u = i / numSpheres; // goes from 0 to 1 as we iterate the spheres
-      const sphereMat = new THREE.MeshPhongMaterial();
-      sphereMat.color.setHSL(u, 1, .75);
-      const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
-      sphereMesh.position.set(0, sphereRadius + 2, 0);
-      base.add(sphereMesh);
-
-      // remember all 3 plus the y position
-      sphereShadowBases.push({
-        base,
-        sphereMesh,
-        shadowMesh,
-        y: sphereMesh.position.y
-      });
-
-
+      const cubeMesh = new THREE.Mesh(cubeGeo, cubeMat);
+      cubeMesh.receiveShadow = true;
+      cubeMesh.castShadow = true;
+      cubeMesh.position.set(size + 1, size / 2, 0);
+      this.scene.add(cubeMesh);
     }
-    console.log('Sphere Shadow Bases ->', sphereShadowBases);
-
-    // =============================================================== Lights ===========================================================
 
     {
-      // HemisphereLight
-      const skyColor = 0xb1e1ff; // light blue
-      const groundColor = 0xb97a20; // brownish orange
-      const intensity = 2;
-      const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-      this.scene.add(light);
+      const sphereRadius = 3;
+      const sphereWidthDiv = 32;
+      const sphereHeightDiv = 16;
+      const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDiv, sphereHeightDiv);
+      const sphereMat = new THREE.MeshPhongMaterial({
+        color: '#ca8'
+      });
+      const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+      sphereMesh.castShadow = true;
+      sphereMesh.receiveShadow = true;
+      sphereMesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+      this.scene.add(sphereMesh);
     }
+
+    // =============================================================== Lights ===========================================================
 
     {
       // DirectionalLight
