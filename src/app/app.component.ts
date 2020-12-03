@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
   public renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-  public camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 100);
+  public camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 1000);
   public controls = new OrbitControls(this.camera, this.renderer.domElement);
   public loader = new THREE.TextureLoader();
 
@@ -105,10 +105,8 @@ export class AppComponent implements OnInit {
     const color = 0xFFFFFF
     const intensity = 1;
     const light = new THREE.PointLight(color, intensity);
+    light.castShadow = true;
     light.position.set(0, 10, 0);
-    light.power = 800;
-    light.decay = 2;
-    light.distance = Infinity;
     const pointHelper = new THREE.PointLightHelper(light);
     this.scene.add(light);
     this.scene.add(pointHelper);
@@ -150,8 +148,7 @@ export class AppComponent implements OnInit {
       // update the camera helper we're using to show the light's shadow camera
       cameraHelper.update();
     }
-    updateMatrixAndHelpers();
-    setTimeout(updateMatrixAndHelpers);
+    // updateMatrixAndHelpers();
 
 
     // =============================================================== Animate ===========================================================
