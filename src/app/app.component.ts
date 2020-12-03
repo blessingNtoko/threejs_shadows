@@ -87,18 +87,42 @@ export class AppComponent implements OnInit {
       this.scene.add(sphereMesh);
     }
 
+    {
+      const size = 30;
+      const cubeGeo = new THREE.BoxBufferGeometry(size, size, size);
+      const cubeMat = new THREE.MeshPhongMaterial({
+        color: '#ccc',
+        side: THREE.BackSide
+      });
+      const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+      mesh.receiveShadow = true;
+      mesh.position.set(0, size / 2 - .1, 0);
+      this.scene.add(mesh);
+    }
+
     // =============================================================== Lights ===========================================================
 
     const color = 0xFFFFFF
     const intensity = 1;
-    const light = new THREE.SpotLight(color, intensity);
-    light.castShadow = true;
-    light.position.set(0, 20, 0);
-    light.target.position.set(-5, 0, 0);
-    const spotHelper = new THREE.SpotLightHelper(light);
+    const light = new THREE.PointLight(color, intensity);
+    light.position.set(0, 10, 0);
+    light.power = 800;
+    light.decay = 2;
+    light.distance = Infinity;
+    const pointHelper = new THREE.PointLightHelper(light);
     this.scene.add(light);
-    this.scene.add(light.target);
-    this.scene.add(spotHelper);
+    this.scene.add(pointHelper);
+
+    // const color = 0xFFFFFF
+    // const intensity = 1;
+    // const light = new THREE.SpotLight(color, intensity);
+    // light.castShadow = true;
+    // light.position.set(0, 10, 0);
+    // light.target.position.set(-4, 0, -4);
+    // const spotHelper = new THREE.SpotLightHelper(light);
+    // this.scene.add(light);
+    // this.scene.add(light.target);
+    // this.scene.add(spotHelper);
 
     // const color = 'white';
     // const intensity = 1;
@@ -117,8 +141,8 @@ export class AppComponent implements OnInit {
 
     const updateMatrixAndHelpers = () => {
       // update the light targets's matrixWorld because it is needed by the helper
-      light.target.updateMatrixWorld();
-      spotHelper.update();
+      // light.target.updateMatrixWorld();
+      pointHelper.update();
 
       // update the light's shadow camera's projection matrix
       light.shadow.camera.updateProjectionMatrix();
@@ -136,8 +160,6 @@ export class AppComponent implements OnInit {
     gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
     gui.add(light, 'intensity', 0, 2, .01);
     gui.add(light, 'distance', 0, 40).onChange(updateMatrixAndHelpers);
-    gui.add(new DegRadHelper(light, 'angle'), 'value', 0, 90).name('angle').onChange(updateMatrixAndHelpers);
-    gui.add(light, 'penumbra', 0, 1, .01);
     {
       const folder = gui.addFolder('Shadow Camera');
       folder.open();
@@ -147,7 +169,6 @@ export class AppComponent implements OnInit {
     }
 
     this.makeXYZGUI(gui, light.position, 'position', updateMatrixAndHelpers);
-    this.makeXYZGUI(gui, light.target.position, 'target', updateMatrixAndHelpers);
 
     // =============================================================== Resize ===========================================================
 
