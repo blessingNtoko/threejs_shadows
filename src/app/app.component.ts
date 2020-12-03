@@ -32,8 +32,10 @@ export class AppComponent implements OnInit {
 
     this.scene.background = new THREE.Color('black');
 
+    this.controls.target.set(0, 5, 0);
     this.controls.update();
-    this.camera.position.set(20, 5, 0);
+
+    this.camera.position.set(0, 10, 20);
 
     // =============================================================== Plane Cube & Sphere===========================================================
 
@@ -46,11 +48,10 @@ export class AppComponent implements OnInit {
     texture.repeat.set(repeats, repeats);
 
     const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshBasicMaterial({
+    const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
       side: THREE.DoubleSide
     });
-    planeMat.color.setRGB(1.5, 1.5, 1.5);
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
     planeMesh.receiveShadow = true;
     planeMesh.rotation.x = Math.PI * -.5;
@@ -63,8 +64,8 @@ export class AppComponent implements OnInit {
         color: '#8ac'
       });
       const cubeMesh = new THREE.Mesh(cubeGeo, cubeMat);
-      cubeMesh.receiveShadow = true;
       cubeMesh.castShadow = true;
+      cubeMesh.receiveShadow = true;
       cubeMesh.position.set(size + 1, size / 2, 0);
       this.scene.add(cubeMesh);
     }
@@ -86,22 +87,27 @@ export class AppComponent implements OnInit {
 
     // =============================================================== Lights ===========================================================
 
-      const color = 'white';
-      const intensity = 1;
-      const light = new DirectionalLight(color, intensity);
-      light.position.set(0, 10, 0);
-      light.target.position.set(-4, 0, -4);
-      this.scene.add(light);
-      this.scene.add(light.target);
+    const color = 'white';
+    const intensity = 1;
+    const light = new DirectionalLight(color, intensity);
+    light.castShadow = true;
+    light.position.set(0, 10, 0);
+    light.target.position.set(-4, 0, -4);
+    this.scene.add(light);
+    this.scene.add(light.target);
 
-      const directHelper = new THREE.DirectionalLightHelper(light);
-      this.scene.add(directHelper)
+    const directHelper = new THREE.DirectionalLightHelper(light);
+    this.scene.add(directHelper)
 
-      const onChange = () => {
-        light.target.updateMatrixWorld();
-        directHelper.update();
-      }
-      onChange();
+    const onChange = () => {
+      light.target.updateMatrixWorld();
+      directHelper.update();
+    }
+    onChange();
+
+    const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+    this.scene.add(cameraHelper);
+
 
     // =============================================================== Animate ===========================================================
 
